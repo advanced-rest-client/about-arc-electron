@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <title>about-arc-electron test</title>
+  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <link rel="import" href="../../arc-local-store-preferences/arc-local-store-preferences.html">
+  <link rel="import" href="../about-arc-electron.html">
+</head>
+<body>
+  <arc-local-store-preferences></arc-local-store-preferences>
+
+  <test-fixture id="Manual">
+    <template>
+      <about-arc-electron manual></about-arc-electron>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="Auto">
+    <template>
+      <about-arc-electron></about-arc-electron>
+    </template>
+  </test-fixture>
+
+  <script>
+  window.ipc = {
+    on: function() {},
+    send: function() {},
+    removeListener: function() {}
+  };
+  suite('about-arc-electron', () => {
+    suite('Auto reading settings', () => {
+      let element;
+      setup(() => {
+        const node = document.querySelector('arc-local-store-preferences');
+        node.clear();
+      });
+
+      teardown(() => {
+        const node = document.querySelector('arc-local-store-preferences');
+        node.clear();
+      });
+
+      test('Dispatches settings-read', (done) => {
+        window.addEventListener('settings-read', function f() {
+          window.removeEventListener('settings-read', f);
+          done();
+        });
+        element = fixture('Auto');
+      });
+
+      test('Do not dispatches settings-changed when restoring data', (done) => {
+        let called = false;
+        const f = function() {
+          called = true;
+        };
+        element = fixture('Auto');
+        element.addEventListener('settings-changed', f);
+        setTimeout(() => {
+          element.removeEventListener('settings-changed', f);
+          assert.isFalse(called);
+          done();
+        }, 500);
+      });
+    });
+
+    suite('_settingsChanged()', () => {
+      let element;
+      setup((done) => {
+        element = fixture('Manual');
+        flush(() => done());
+      });
+      function fire(name, value) {
+        const ev = new CustomEvent('settings-changed', {
+          cancelable: false,
+          composed: true,
+          bubbles: true,
+          detail: {
+            name,
+            value
+          }
+        });
+        document.body.dispatchEvent(ev);
+      }
+      [
+        ['autoUpdate', true]
+      ].forEach((item) => {
+        test(`Updates value for ${item[0]}`, function() {
+          fire(item[0], item[1]);
+          assert.strictEqual(element[item[0]], item[1]);
+        });
+      });
+    });
+  });
+  </script>
+</body>
+</html>
