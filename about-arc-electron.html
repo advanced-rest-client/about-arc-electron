@@ -7,11 +7,16 @@
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../paper-styles/shadow.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-item/paper-item-body.html">
 <dom-module id="about-arc-electron">
   <template>
     <style>
     :host {
       display: block;
+      @apply --arc-font-body1;
       @apply --about-arc;
     }
 
@@ -51,7 +56,7 @@
       @apply --layout-center;
       @apply --arc-font-body2;
       font-size: 18px;
-      color: rgba(0, 0, 0, 0.74);
+      color: var(--about-arc-version-label-color, rgba(0, 0, 0, 0.74));
       @apply --about-arc-version-container;
     }
 
@@ -59,7 +64,7 @@
       margin-right: 12px;
       display: inline-block;
       padding-right: 12px;
-      border-right: 1px rgba(0, 0, 0, 0.14) solid;
+      border-right: 1px var(--about-arc-version-section-border-right-color, rgba(0, 0, 0, 0.14)) solid;
       @apply --about-arc-version-label;
     }
 
@@ -84,7 +89,7 @@
       @apply --shadow-elevation-3dp;
       max-width: 360px;
       margin: 40px auto;
-      background-color: #fff;
+      background-color: var(--about-arc-updates-section-background-color, #fff);
       padding: 24px;
       @apply --about-arc-update-status-section;
     }
@@ -104,13 +109,12 @@
     }
 
     .heart {
-      color: #FF5722;
+      color: var(--about-arc-updated-heart-color, #FF5722);
       margin-left: 8px;
     }
 
     .update-settings {
       margin: 24px auto;
-      @apply --arc-font-body1;
     }
 
     .author-line {
@@ -128,7 +132,7 @@
     .error-code {
       max-width: 360px;
       margin: 20px auto;
-      background-color: #EF9A9A;
+      background-color: var(--about-arc-error-code-background-color, #EF9A9A);
       padding: 20px;
       @apply --select-text;
     }
@@ -169,6 +173,32 @@
       <div class="update-settings">
         <paper-toggle-button checked="{{autoUpdate}}">Automatically download and install updates</paper-toggle-button>
       </div>
+
+      <div class="release-channel">
+        <paper-dropdown-menu label="Release channel" dynamic-align horizontal-align="left">
+          <paper-listbox slot="dropdown-content" attr-for-item-title="label" attr-for-selected="data-channel" selected="[[releaseChannel]]" on-selected-changed="_releaseChannelChanged">
+            <paper-item data-channel="latest" label="Stable">
+              <paper-item-body two-line>
+                <div>Stable</div>
+                <div secondary>Default channel. Use this if you are not sure what to do.</div>
+              </paper-item-body>
+            </paper-item>
+            <paper-item data-channel="beta" label="Beta">
+              <paper-item-body two-line>
+                <div>Beta</div>
+                <div secondary>Next release. Tested but may contain bugs.</div>
+              </paper-item-body>
+            </paper-item>
+            <paper-item data-channel="alpha" label="Unstable">
+              <paper-item-body two-line>
+                <div>Unstable</div>
+                <div secondary>Development version. May not be fully tested and contain bugs!</div>
+              </paper-item-body>
+            </paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+      </div>
+
     </section>
 
     <template is="dom-if" if="[[isError]]">
@@ -181,7 +211,7 @@
     <section class="author-line">
       <p>Coded by Pawel Psztyc</p>
       <div class="branding">
-        With great support of SalesForce.
+        With great support of MuleSoft, a SalesForce company.
       </div>
     </section>
   </template>
@@ -206,7 +236,9 @@
    * @appliesMixin ArcComponents.ArcSettingsPanelMixin
    */
   class AboutArcElectron extends ArcComponents.ArcSettingsPanelMixin(Polymer.Element) {
-    static get is() {return 'about-arc-electron';}
+    static get is() {
+      return 'about-arc-electron';
+    }
     static get properties() {
       return {
         /**
@@ -228,7 +260,11 @@
         isError: Boolean,
         // Associated message with current error code.
         errorMessage: String,
-        errorCode: String
+        errorCode: String,
+        /**
+         * Current release channel.
+         */
+        releaseChannel: String
       };
     }
 
@@ -269,12 +305,22 @@
       } else {
         values.autoUpdate = this._boolValue(values.autoUpdate);
       }
+      const defaultReleaseChannel = 'latest';
+      if (typeof values.releaseChannel === 'undefined') {
+        values.releaseChannel = defaultReleaseChannel;
+      } else {
+        values.releaseChannel = String(values.releaseChannel);
+        if (!this.isValidChannel(values.releaseChannel)) {
+          values.releaseChannel = defaultReleaseChannel;
+        }
+      }
       return values;
     }
 
     _setSettings(values) {
       this.__settingsRestored = false;
       this.autoUpdate = values.autoUpdate;
+      this.releaseChannel = values.releaseChannel;
       this.__settingsRestored = true;
     }
 
@@ -286,6 +332,7 @@
       this.__settingsRestored = false;
       switch (key) {
         case 'autoUpdate':
+        case 'releaseChannel':
           this[key] = value;
           break;
       }
@@ -362,6 +409,26 @@
       e.preventDefault();
       e.stopPropagation();
       ipc.send('open-external-url', e.target.href);
+    }
+
+    /**
+     * Checks if `channel` is a valid channel signature.
+     * @param {String} channel
+     * @return {Boolean}
+     */
+    isValidChannel(channel) {
+      return ['beta', 'alpha', 'latest'].indexOf(channel) !== -1;
+    }
+
+    _releaseChannelChanged(e) {
+      if (!this.__settingsRestored) {
+        return;
+      }
+      const channel = e.detail.value;
+      if (!this.isValidChannel(channel)) {
+        return;
+      }
+      this.updateSetting('releaseChannel', channel);
     }
   }
   window.customElements.define(AboutArcElectron.is, AboutArcElectron);

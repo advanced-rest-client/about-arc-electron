@@ -85,12 +85,40 @@
         document.body.dispatchEvent(ev);
       }
       [
-        ['autoUpdate', true]
+        ['autoUpdate', true],
+        ['releaseChannel', 'beta']
       ].forEach((item) => {
         test(`Updates value for ${item[0]}`, function() {
           fire(item[0], item[1]);
           assert.strictEqual(element[item[0]], item[1]);
         });
+      });
+    });
+
+    suite('isValidChannel()', () => {
+      let element;
+      setup(() => {
+        element = fixture('Manual');
+      });
+
+      test('Returns true for "alpha"', () => {
+        const result = element.isValidChannel('alpha');
+        assert.isTrue(result);
+      });
+
+      test('Returns true for "beta"', () => {
+        const result = element.isValidChannel('beta');
+        assert.isTrue(result);
+      });
+
+      test('Returns true for "latest"', () => {
+        const result = element.isValidChannel('latest');
+        assert.isTrue(result);
+      });
+
+      test('Returns false for anything else', () => {
+        const result = element.isValidChannel('else');
+        assert.isFalse(result);
       });
     });
   });
