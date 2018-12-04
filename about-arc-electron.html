@@ -204,7 +204,9 @@
     <template is="dom-if" if="[[isError]]">
       <section class="error-code">
         <p>[[errorMessage]]</p>
-        <p>[[errorCode]]</p>
+        <template is="dom-if" if="[[errorCode]]">
+          <p>[[errorCode]]</p>
+        </template>
       </section>
     </template>
 
@@ -363,11 +365,11 @@
       this.updateProgress = false;
     }
 
-    _updateErrorHandler(e, data) {
+    _updateErrorHandler(e, message) {
       this.updateStatePage = 4;
       this.updateProgress = false;
-      this._createErrorMessage(data[1].code);
-      this.errorCode = data[1].code;
+      this._createErrorMessage(message.code, message.message);
+      this.errorCode = message.code || undefined;
       this.isError = true;
     }
 
@@ -376,8 +378,7 @@
       this.updateDownloaded = true;
     }
 
-    _createErrorMessage(code) {
-      let message;
+    _createErrorMessage(code, message) {
       switch (code) {
         case 'ERR_UPDATER_INVALID_RELEASE_FEED':
           message = 'Unable to parse releases feed.';
@@ -392,7 +393,7 @@
           message = 'Unable to find latest version on GitHub';
           break;
         default:
-          message = 'Unknown error ocurred.';
+          message = message || 'Unknown error ocurred.';
       }
       this.errorMessage = message;
     }
