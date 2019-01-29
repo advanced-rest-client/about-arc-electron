@@ -108,11 +108,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 214,
+              "line": 248,
               "column": 8
             },
             "end": {
-              "line": 214,
+              "line": 248,
               "column": 26
             }
           },
@@ -129,11 +129,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 216,
+              "line": 250,
               "column": 8
             },
             "end": {
-              "line": 219,
+              "line": 253,
               "column": 9
             }
           },
@@ -151,11 +151,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 221,
+              "line": 255,
               "column": 8
             },
             "end": {
-              "line": 221,
+              "line": 255,
               "column": 67
             }
           },
@@ -173,11 +173,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 223,
+              "line": 257,
               "column": 8
             },
             "end": {
-              "line": 223,
+              "line": 257,
               "column": 31
             }
           },
@@ -194,11 +194,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 225,
+              "line": 259,
               "column": 8
             },
             "end": {
-              "line": 225,
+              "line": 259,
               "column": 33
             }
           },
@@ -215,11 +215,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 227,
+              "line": 261,
               "column": 8
             },
             "end": {
-              "line": 227,
+              "line": 261,
               "column": 24
             }
           },
@@ -236,11 +236,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 229,
+              "line": 263,
               "column": 8
             },
             "end": {
-              "line": 229,
+              "line": 263,
               "column": 28
             }
           },
@@ -257,12 +257,33 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 230,
+              "line": 264,
               "column": 8
             },
             "end": {
-              "line": 230,
+              "line": 264,
               "column": 25
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "attributeType": "String"
+            }
+          }
+        },
+        {
+          "name": "releaseChannel",
+          "type": "string | null | undefined",
+          "description": "Current release channel.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 268,
+              "column": 8
+            },
+            "end": {
+              "line": 268,
+              "column": 30
             }
           },
           "metadata": {
@@ -279,11 +300,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 244,
+              "line": 282,
               "column": 4
             },
             "end": {
-              "line": 253,
+              "line": 291,
               "column": 5
             }
           },
@@ -299,11 +320,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 255,
+              "line": 293,
               "column": 4
             },
             "end": {
-              "line": 263,
+              "line": 301,
               "column": 5
             }
           },
@@ -364,11 +385,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 265,
+              "line": 303,
               "column": 4
             },
             "end": {
-              "line": 272,
+              "line": 319,
               "column": 5
             }
           },
@@ -385,11 +406,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 274,
+              "line": 321,
               "column": 4
             },
             "end": {
-              "line": 278,
+              "line": 326,
               "column": 5
             }
           },
@@ -688,11 +709,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 280,
+              "line": 328,
               "column": 4
             },
             "end": {
-              "line": 282,
+              "line": 330,
               "column": 5
             }
           },
@@ -712,11 +733,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 284,
+              "line": 332,
               "column": 4
             },
             "end": {
-              "line": 292,
+              "line": 341,
               "column": 5
             }
           },
@@ -739,11 +760,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 294,
+              "line": 343,
               "column": 4
             },
             "end": {
-              "line": 299,
+              "line": 348,
               "column": 5
             }
           },
@@ -759,11 +780,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 301,
+              "line": 350,
               "column": 4
             },
             "end": {
-              "line": 305,
+              "line": 354,
               "column": 5
             }
           },
@@ -779,11 +800,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 307,
+              "line": 356,
               "column": 4
             },
             "end": {
-              "line": 311,
+              "line": 360,
               "column": 5
             }
           },
@@ -799,11 +820,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 313,
+              "line": 362,
               "column": 4
             },
             "end": {
-              "line": 316,
+              "line": 365,
               "column": 5
             }
           },
@@ -819,11 +840,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 318,
+              "line": 367,
               "column": 4
             },
             "end": {
-              "line": 324,
+              "line": 373,
               "column": 5
             }
           },
@@ -833,7 +854,7 @@
               "name": "e"
             },
             {
-              "name": "data"
+              "name": "err"
             }
           ],
           "return": {
@@ -846,11 +867,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 326,
+              "line": 375,
               "column": 4
             },
             "end": {
-              "line": 329,
+              "line": 378,
               "column": 5
             }
           },
@@ -866,11 +887,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 331,
+              "line": 380,
               "column": 4
             },
             "end": {
-              "line": 350,
+              "line": 398,
               "column": 5
             }
           },
@@ -878,6 +899,9 @@
           "params": [
             {
               "name": "code"
+            },
+            {
+              "name": "message"
             }
           ],
           "return": {
@@ -890,11 +914,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 352,
+              "line": 400,
               "column": 4
             },
             "end": {
-              "line": 354,
+              "line": 402,
               "column": 5
             }
           },
@@ -910,11 +934,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 356,
+              "line": 404,
               "column": 4
             },
             "end": {
-              "line": 358,
+              "line": 406,
               "column": 5
             }
           },
@@ -930,11 +954,60 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 360,
+              "line": 408,
               "column": 4
             },
             "end": {
-              "line": 364,
+              "line": 412,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "e"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "isValidChannel",
+          "description": "Checks if `channel` is a valid channel signature.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 419,
+              "column": 4
+            },
+            "end": {
+              "line": 421,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "channel",
+              "type": "String"
+            }
+          ],
+          "return": {
+            "type": "Boolean"
+          }
+        },
+        {
+          "name": "_releaseChannelChanged",
+          "description": "",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 423,
+              "column": 4
+            },
+            "end": {
+              "line": 432,
               "column": 5
             }
           },
@@ -959,11 +1032,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 207,
+          "line": 239,
           "column": 2
         },
         "end": {
-          "line": 365,
+          "line": 433,
           "column": 3
         }
       },
@@ -1030,11 +1103,11 @@
           "description": "Current version of the application",
           "sourceRange": {
             "start": {
-              "line": 214,
+              "line": 248,
               "column": 8
             },
             "end": {
-              "line": 214,
+              "line": 248,
               "column": 26
             }
           },
@@ -1046,11 +1119,11 @@
           "description": "page of the update status label",
           "sourceRange": {
             "start": {
-              "line": 216,
+              "line": 250,
               "column": 8
             },
             "end": {
-              "line": 219,
+              "line": 253,
               "column": 9
             }
           },
@@ -1062,11 +1135,11 @@
           "description": "State of auto update setting.",
           "sourceRange": {
             "start": {
-              "line": 221,
+              "line": 255,
               "column": 8
             },
             "end": {
-              "line": 221,
+              "line": 255,
               "column": 67
             }
           },
@@ -1078,11 +1151,11 @@
           "description": "True to indicate that update is being checked or downloaded",
           "sourceRange": {
             "start": {
-              "line": 223,
+              "line": 257,
               "column": 8
             },
             "end": {
-              "line": 223,
+              "line": 257,
               "column": 31
             }
           },
@@ -1094,11 +1167,11 @@
           "description": "True to indicate that the update is ready to install",
           "sourceRange": {
             "start": {
-              "line": 225,
+              "line": 259,
               "column": 8
             },
             "end": {
-              "line": 225,
+              "line": 259,
               "column": 33
             }
           },
@@ -1110,11 +1183,11 @@
           "description": "Indicates that error has been reported.",
           "sourceRange": {
             "start": {
-              "line": 227,
+              "line": 261,
               "column": 8
             },
             "end": {
-              "line": 227,
+              "line": 261,
               "column": 24
             }
           },
@@ -1126,11 +1199,11 @@
           "description": "Associated message with current error code.",
           "sourceRange": {
             "start": {
-              "line": 229,
+              "line": 263,
               "column": 8
             },
             "end": {
-              "line": 229,
+              "line": 263,
               "column": 28
             }
           },
@@ -1142,12 +1215,28 @@
           "description": "",
           "sourceRange": {
             "start": {
-              "line": 230,
+              "line": 264,
               "column": 8
             },
             "end": {
-              "line": 230,
+              "line": 264,
               "column": 25
+            }
+          },
+          "metadata": {},
+          "type": "string | null | undefined"
+        },
+        {
+          "name": "release-channel",
+          "description": "Current release channel.",
+          "sourceRange": {
+            "start": {
+              "line": 268,
+              "column": 8
+            },
+            "end": {
+              "line": 268,
+              "column": 30
             }
           },
           "metadata": {},

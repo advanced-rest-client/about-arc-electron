@@ -8,6 +8,10 @@
  *   about-arc-electron.html
  */
 
+
+// tslint:disable:variable-name Describing an API that's defined elsewhere.
+// tslint:disable:no-any describes the API as best we are able today
+
 /// <reference path="../polymer/types/polymer-element.d.ts" />
 /// <reference path="../arc-settings-panel-mixin/arc-settings-panel-mixin.d.ts" />
 /// <reference path="../iron-icon/iron-icon.d.ts" />
@@ -17,6 +21,10 @@
 /// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
 /// <reference path="../paper-styles/shadow.d.ts" />
 /// <reference path="../arc-icons/arc-icons.d.ts" />
+/// <reference path="../paper-dropdown-menu/paper-dropdown-menu.d.ts" />
+/// <reference path="../paper-listbox/paper-listbox.d.ts" />
+/// <reference path="../paper-item/paper-item.d.ts" />
+/// <reference path="../paper-item/paper-item-body.d.ts" />
 
 declare namespace UiElements {
 
@@ -72,6 +80,11 @@ declare namespace UiElements {
      */
     errorMessage: string|null|undefined;
     errorCode: string|null|undefined;
+
+    /**
+     * Current release channel.
+     */
+    releaseChannel: string|null|undefined;
     connectedCallback(): void;
     disconnectedCallback(): void;
     _processValues(values: any): any;
@@ -82,12 +95,18 @@ declare namespace UiElements {
     _updateAvailableHandler(): void;
     _downloadingHandler(): void;
     _updateNotAvailableHandler(): void;
-    _updateErrorHandler(e: any, data: any): void;
+    _updateErrorHandler(e: any, err: any): void;
     _downloadedHandler(): void;
-    _createErrorMessage(code: any): void;
+    _createErrorMessage(code: any, message: any): void;
     updateCheck(): void;
     updateInstall(): void;
     openNotes(e: any): void;
+
+    /**
+     * Checks if `channel` is a valid channel signature.
+     */
+    isValidChannel(channel: String|null): Boolean|null;
+    _releaseChannelChanged(e: any): void;
   }
 }
 
