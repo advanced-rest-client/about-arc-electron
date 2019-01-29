@@ -121,6 +121,323 @@
         assert.isFalse(result);
       });
     });
+
+    suite('_processValues()', () => {
+      let element;
+      setup(() => {
+        element = fixture('Manual');
+      });
+
+      [
+        ['autoUpdate', undefined, true],
+        ['autoUpdate', true, true],
+        ['autoUpdate', 'false', false],
+        ['releaseChannel', undefined, 'latest'],
+        ['releaseChannel', 'beta', 'beta'],
+        ['releaseChannel', 'other', 'latest']
+      ].forEach((item) => {
+        test(`Sets value of ${item[0]} when ${item[1]}`, () => {
+          const values = {};
+          values[item[0]] = item[1];
+          element._processValues(values);
+          assert.equal(values[item[0]], item[2]);
+        });
+      });
+    });
+
+    suite('_setSettings()', () => {
+      let element;
+      setup(() => {
+        element = fixture('Manual');
+      });
+      [
+        ['autoUpdate', true],
+        ['autoUpdate', false],
+        ['releaseChannel', 'latest']
+      ].forEach((item) => {
+        test(`Sets value of ${item[0]}`, () => {
+          const values = {};
+          values[item[0]] = item[1];
+          element._setSettings(values);
+          assert.equal(element[item[0]], item[1]);
+        });
+      });
+    });
+  });
+
+  suite('_checkingUpdateHandler()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Sets updateStatePage', () => {
+      element.updateStatePage = 0;
+      element.updateProgress = true;
+      element._checkingUpdateHandler();
+      assert.equal(element.updateStatePage, 1);
+    });
+
+    test('Sets updateProgress', () => {
+      element.updateProgress = false;
+      element._checkingUpdateHandler();
+      assert.isTrue(element.updateProgress);
+    });
+  });
+
+  suite('_updateAvailableHandler()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Sets updateStatePage', () => {
+      element.updateStatePage = 0;
+      element._updateAvailableHandler();
+      assert.equal(element.updateStatePage, 2);
+    });
+
+    test('Does nothing when updateStatePage is already set', () => {
+      element.updateStatePage = 2;
+      element._updateAvailableHandler();
+      assert.equal(element.updateStatePage, 2);
+      // coverge
+    });
+  });
+
+  suite('_downloadingHandler()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Sets updateProgress', () => {
+      element.updateProgress = false;
+      element._downloadingHandler();
+      assert.isTrue(element.updateProgress);
+    });
+
+    test('Does nothing when updateProgress is already set', () => {
+      element.updateProgress = true;
+      element._downloadingHandler();
+      assert.isTrue(element.updateProgress);
+      // Coverage
+    });
+  });
+
+  suite('_updateNotAvailableHandler()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Resets updateStatePage', () => {
+      element.updateStatePage = 1;
+      element._updateNotAvailableHandler();
+      assert.equal(element.updateStatePage, 0);
+    });
+
+    test('Resets updateProgress', () => {
+      element.updateProgress = true;
+      element._updateNotAvailableHandler();
+      assert.isFalse(element.updateProgress);
+    });
+  });
+
+  suite('_updateErrorHandler()', () => {
+    let element;
+    let err;
+    setup(() => {
+      element = fixture('Manual');
+      err = {
+        code: 'unknown-test-code',
+        message: 'test-message'
+      };
+    });
+
+    test('Sets updateStatePage', () => {
+      element._updateErrorHandler(null, err);
+      assert.equal(element.updateStatePage, 4);
+    });
+
+    test('Resets updateProgress', () => {
+      element._updateErrorHandler(null, err);
+      assert.isFalse(element.updateProgress);
+    });
+
+    test('Sets isError', () => {
+      element._updateErrorHandler(null, err);
+      assert.isTrue(element.isError);
+    });
+
+    test('Sets errorCode', () => {
+      element._updateErrorHandler(null, err);
+      assert.equal(element.errorCode, 'unknown-test-code');
+    });
+
+    test('errorCode is undefined when missing', () => {
+      delete err.code;
+      element._updateErrorHandler(null, err);
+      assert.isUndefined(element.errorCode);
+    });
+
+    test('Calls _createErrorMessage() with arguments', () => {
+      const spy = sinon.spy(element, '_createErrorMessage');
+      element._updateErrorHandler(null, err);
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'unknown-test-code');
+      assert.equal(spy.args[0][1], 'test-message');
+    });
+  });
+
+  suite('_downloadedHandler()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Sets updateStatePage', () => {
+      element.updateStatePage = 0;
+      element._downloadedHandler();
+      assert.equal(element.updateStatePage, 3);
+    });
+
+    test('Sets updateDownloaded', () => {
+      element.updateDownloaded = false;
+      element._downloadedHandler();
+      assert.isTrue(element.updateDownloaded);
+    });
+  });
+
+  suite('_createErrorMessage()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    [
+      ['ERR_UPDATER_INVALID_RELEASE_FEED', 'Unable to parse releases feed.'],
+      ['ERR_UPDATER_NO_PUBLISHED_VERSIONS', 'Unable to find published version.'],
+      ['ERR_UPDATER_CHANNEL_FILE_NOT_FOUND', 'Cannot find latest release information for this platform.'],
+      ['ERR_UPDATER_LATEST_VERSION_NOT_FOUND', 'Unable to find latest version on GitHub.'],
+      ['unknown-test-code', 'Unknown error ocurred.']
+    ].forEach((item) => {
+      test(`Returns message for ${item[0]}`, () => {
+        element._createErrorMessage(item[0]);
+        assert.equal(element.errorMessage, item[1]);
+      });
+    });
+
+    test('Returns passed message', () => {
+      element._createErrorMessage('unknown', 'my-message');
+      assert.equal(element.errorMessage, 'my-message');
+    });
+  });
+
+  suite('updateCheck()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Calls ipc.send with argument', () => {
+      const spy = sinon.spy(window.ipc, 'send');
+      element.updateCheck();
+      window.ipc.send.restore();
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'check-for-update');
+    });
+  });
+
+  suite('updateInstall()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Calls ipc.send with argument', () => {
+      const spy = sinon.spy(window.ipc, 'send');
+      element.updateInstall();
+      window.ipc.send.restore();
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'install-update');
+    });
+  });
+
+  suite('openNotes()', () => {
+    let element;
+    let ev;
+    setup(() => {
+      element = fixture('Manual');
+      ev = {
+        preventDefault: () => {},
+        stopPropagation: () => {},
+        target: {href: 'test-url'}
+      };
+    });
+
+    test('Cancels the event', () => {
+      const spy = sinon.spy(ev, 'preventDefault');
+      element.openNotes(ev);
+      assert.isTrue(spy.called);
+    });
+
+    test('Stopping the event', () => {
+      const spy = sinon.spy(ev, 'stopPropagation');
+      element.openNotes(ev);
+      assert.isTrue(spy.called);
+    });
+
+    test('Calls ipc.send with arguments', () => {
+      const spy = sinon.spy(window.ipc, 'send');
+      element.openNotes(ev);
+      window.ipc.send.restore();
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'open-external-url');
+      assert.equal(spy.args[0][1], 'test-url');
+    });
+  });
+
+  suite('_releaseChannelChanged()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Does nothing when not __settingsRestored', () => {
+      element.__settingsRestored = false;
+      const spy = sinon.spy(element, 'updateSetting');
+      element._releaseChannelChanged({
+        detail: {
+          value: 'alpha'
+        }
+      });
+      assert.isFalse(spy.called);
+    });
+
+    test('Does nothing when cannel is invalid', () => {
+      element.__settingsRestored = true;
+      const spy = sinon.spy(element, 'updateSetting');
+      element._releaseChannelChanged({
+        detail: {
+          value: 'alpha-centauri'
+        }
+      });
+      assert.isFalse(spy.called);
+    });
+
+    test('Calls updateSetting with arguments', () => {
+      element.__settingsRestored = true;
+      const spy = sinon.spy(element, 'updateSetting');
+      element._releaseChannelChanged({
+        detail: {
+          value: 'alpha'
+        }
+      });
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'releaseChannel');
+      assert.equal(spy.args[0][1], 'alpha');
+    });
   });
   </script>
 </body>

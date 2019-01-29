@@ -365,11 +365,11 @@
       this.updateProgress = false;
     }
 
-    _updateErrorHandler(e, message) {
+    _updateErrorHandler(e, err) {
       this.updateStatePage = 4;
       this.updateProgress = false;
-      this._createErrorMessage(message.code, message.message);
-      this.errorCode = message.code || undefined;
+      this._createErrorMessage(err.code, err.message);
+      this.errorCode = err.code || undefined;
       this.isError = true;
     }
 
@@ -387,10 +387,10 @@
           message = 'Unable to find published version.';
           break;
         case 'ERR_UPDATER_CHANNEL_FILE_NOT_FOUND':
-          message = 'Cannot find latest release information for this platform';
+          message = 'Cannot find latest release information for this platform.';
           break;
         case 'ERR_UPDATER_LATEST_VERSION_NOT_FOUND':
-          message = 'Unable to find latest version on GitHub';
+          message = 'Unable to find latest version on GitHub.';
           break;
         default:
           message = message || 'Unknown error ocurred.';
