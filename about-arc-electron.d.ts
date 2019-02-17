@@ -5,26 +5,12 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   about-arc-electron.html
+ *   about-arc-electron.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 // tslint:disable:no-any describes the API as best we are able today
-
-/// <reference path="../polymer/types/polymer-element.d.ts" />
-/// <reference path="../arc-settings-panel-mixin/arc-settings-panel-mixin.d.ts" />
-/// <reference path="../iron-icon/iron-icon.d.ts" />
-/// <reference path="../iron-pages/iron-pages.d.ts" />
-/// <reference path="../paper-button/paper-button.d.ts" />
-/// <reference path="../paper-toggle-button/paper-toggle-button.d.ts" />
-/// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
-/// <reference path="../paper-styles/shadow.d.ts" />
-/// <reference path="../arc-icons/arc-icons.d.ts" />
-/// <reference path="../paper-dropdown-menu/paper-dropdown-menu.d.ts" />
-/// <reference path="../paper-listbox/paper-listbox.d.ts" />
-/// <reference path="../paper-item/paper-item.d.ts" />
-/// <reference path="../paper-item/paper-item-body.d.ts" />
 
 declare namespace UiElements {
 
@@ -42,7 +28,7 @@ declare namespace UiElements {
    * `--about-arc-electron` | Mixin applied to this elment | `{}`
    */
   class AboutArcElectron extends
-    ArcComponents.ArcSettingsPanelMixin(
+    ArcSettingsPanelMixin(
     Object) {
 
     /**
@@ -110,6 +96,11 @@ declare namespace UiElements {
   }
 }
 
-interface HTMLElementTagNameMap {
-  "about-arc-electron": UiElements.AboutArcElectron;
+declare global {
+
+  interface HTMLElementTagNameMap {
+    "about-arc-electron": UiElements.AboutArcElectron;
+  }
 }
+
+export {};
