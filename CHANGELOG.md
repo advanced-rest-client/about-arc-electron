@@ -21,3 +21,16 @@
 
 
 
+# [3.0.0-preview.2](https://github.com/advanced-rest-client/about-arc-electron/compare/2.0.0...3.0.0-preview.2) (2019-04-06)
+
+
+### New
+
+* Adding npm ignore file ([063475d175bb727df0245839c949b1ac45b61c70](https://github.com/advanced-rest-client/about-arc-electron/commit/063475d175bb727df0245839c949b1ac45b61c70))
+
+### Update
+
+* Updating tests ([984494156f7c9c29011678eab51dad0283b36b15](https://github.com/advanced-rest-client/about-arc-electron/commit/984494156f7c9c29011678eab51dad0283b36b15))
+
+
+
