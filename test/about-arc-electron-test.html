@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
   <title>about-arc-electron test</title>
 
-  <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-  <script src="../node_modules/@polymer/test-fixture/test-fixture.js"></script>
-  <script src="../node_modules/mocha/mocha.js"></script>
-  <script src="../node_modules/chai/chai.js"></script>
-  <script src="../node_modules/wct-mocha/wct-mocha.js"></script>
-  <script src="../node_modules/sinon/pkg/sinon.js"></script>
+  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+  <script src="../../../@polymer/test-fixture/test-fixture.js"></script>
+  <script src="../../../mocha/mocha.js"></script>
+  <script src="../../../chai/chai.js"></script>
+  <script src="../../../wct-mocha/wct-mocha.js"></script>
+  <script src="../../../sinon/pkg/sinon.js"></script>
 
   <script type="module" src="../../../@advanced-rest-client/arc-local-store-preferences/arc-local-store-preferences.js"></script>
   <script type="module" src="../about-arc-electron.js"></script>
@@ -31,420 +31,420 @@
   </test-fixture>
 
   <script type="module">
-window.ipc = {
-  on: function() {},
-  send: function() {},
-  removeListener: function() {}
-};
-suite('about-arc-electron', () => {
-  suite('Auto reading settings', () => {
-    let element;
-    setup(() => {
-      const node = document.querySelector('arc-local-store-preferences');
-      node.clear();
-    });
-
-    teardown(() => {
-      const node = document.querySelector('arc-local-store-preferences');
-      node.clear();
-    });
-
-    test('Dispatches settings-read', (done) => {
-      window.addEventListener('settings-read', function f() {
-        window.removeEventListener('settings-read', f);
-        done();
+  window.ipc = {
+    on: function() {},
+    send: function() {},
+    removeListener: function() {}
+  };
+  suite('about-arc-electron', () => {
+    suite('Auto reading settings', () => {
+      let element;
+      setup(() => {
+        const node = document.querySelector('arc-local-store-preferences');
+        node.clear();
       });
-      element = fixture('Auto');
+
+      teardown(() => {
+        const node = document.querySelector('arc-local-store-preferences');
+        node.clear();
+      });
+
+      test('Dispatches settings-read', (done) => {
+        window.addEventListener('settings-read', function f() {
+          window.removeEventListener('settings-read', f);
+          done();
+        });
+        element = fixture('Auto');
+      });
+
+      test('Do not dispatches settings-changed when restoring data', (done) => {
+        let called = false;
+        const f = function() {
+          called = true;
+        };
+        element = fixture('Auto');
+        element.addEventListener('settings-changed', f);
+        setTimeout(() => {
+          element.removeEventListener('settings-changed', f);
+          assert.isFalse(called);
+          done();
+        }, 500);
+      });
     });
 
-    test('Do not dispatches settings-changed when restoring data', (done) => {
-      let called = false;
-      const f = function() {
-        called = true;
-      };
-      element = fixture('Auto');
-      element.addEventListener('settings-changed', f);
-      setTimeout(() => {
-        element.removeEventListener('settings-changed', f);
-        assert.isFalse(called);
-        done();
-      }, 500);
+    suite('_settingsChanged()', () => {
+      let element;
+      setup((done) => {
+        element = fixture('Manual');
+        flush(() => done());
+      });
+      function fire(name, value) {
+        const ev = new CustomEvent('settings-changed', {
+          cancelable: false,
+          composed: true,
+          bubbles: true,
+          detail: {
+            name,
+            value
+          }
+        });
+        document.body.dispatchEvent(ev);
+      }
+      [
+        ['autoUpdate', true],
+        ['releaseChannel', 'beta']
+      ].forEach((item) => {
+        test(`Updates value for ${item[0]}`, function() {
+          fire(item[0], item[1]);
+          assert.strictEqual(element[item[0]], item[1]);
+        });
+      });
+    });
+
+    suite('isValidChannel()', () => {
+      let element;
+      setup(() => {
+        element = fixture('Manual');
+      });
+
+      test('Returns true for "alpha"', () => {
+        const result = element.isValidChannel('alpha');
+        assert.isTrue(result);
+      });
+
+      test('Returns true for "beta"', () => {
+        const result = element.isValidChannel('beta');
+        assert.isTrue(result);
+      });
+
+      test('Returns true for "latest"', () => {
+        const result = element.isValidChannel('latest');
+        assert.isTrue(result);
+      });
+
+      test('Returns false for anything else', () => {
+        const result = element.isValidChannel('else');
+        assert.isFalse(result);
+      });
+    });
+
+    suite('_processValues()', () => {
+      let element;
+      setup(() => {
+        element = fixture('Manual');
+      });
+
+      [
+        ['autoUpdate', undefined, true],
+        ['autoUpdate', true, true],
+        ['autoUpdate', 'false', false],
+        ['releaseChannel', undefined, 'latest'],
+        ['releaseChannel', 'beta', 'beta'],
+        ['releaseChannel', 'other', 'latest']
+      ].forEach((item) => {
+        test(`Sets value of ${item[0]} when ${item[1]}`, () => {
+          const values = {};
+          values[item[0]] = item[1];
+          element._processValues(values);
+          assert.equal(values[item[0]], item[2]);
+        });
+      });
+    });
+
+    suite('_setSettings()', () => {
+      let element;
+      setup(() => {
+        element = fixture('Manual');
+      });
+      [
+        ['autoUpdate', true],
+        ['autoUpdate', false],
+        ['releaseChannel', 'latest']
+      ].forEach((item) => {
+        test(`Sets value of ${item[0]}`, () => {
+          const values = {};
+          values[item[0]] = item[1];
+          element._setSettings(values);
+          assert.equal(element[item[0]], item[1]);
+        });
+      });
     });
   });
 
-  suite('_settingsChanged()', () => {
+  suite('_checkingUpdateHandler()', () => {
     let element;
-    setup((done) => {
+    setup(() => {
       element = fixture('Manual');
-      flush(() => done());
     });
-    function fire(name, value) {
-      const ev = new CustomEvent('settings-changed', {
-        cancelable: false,
-        composed: true,
-        bubbles: true,
+
+    test('Sets updateStatePage', () => {
+      element.updateStatePage = 0;
+      element.updateProgress = true;
+      element._checkingUpdateHandler();
+      assert.equal(element.updateStatePage, 1);
+    });
+
+    test('Sets updateProgress', () => {
+      element.updateProgress = false;
+      element._checkingUpdateHandler();
+      assert.isTrue(element.updateProgress);
+    });
+  });
+
+  suite('_updateAvailableHandler()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Sets updateStatePage', () => {
+      element.updateStatePage = 0;
+      element._updateAvailableHandler();
+      assert.equal(element.updateStatePage, 2);
+    });
+
+    test('Does nothing when updateStatePage is already set', () => {
+      element.updateStatePage = 2;
+      element._updateAvailableHandler();
+      assert.equal(element.updateStatePage, 2);
+      // coverge
+    });
+  });
+
+  suite('_downloadingHandler()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Sets updateProgress', () => {
+      element.updateProgress = false;
+      element._downloadingHandler();
+      assert.isTrue(element.updateProgress);
+    });
+
+    test('Does nothing when updateProgress is already set', () => {
+      element.updateProgress = true;
+      element._downloadingHandler();
+      assert.isTrue(element.updateProgress);
+      // Coverage
+    });
+  });
+
+  suite('_updateNotAvailableHandler()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Resets updateStatePage', () => {
+      element.updateStatePage = 1;
+      element._updateNotAvailableHandler();
+      assert.equal(element.updateStatePage, 0);
+    });
+
+    test('Resets updateProgress', () => {
+      element.updateProgress = true;
+      element._updateNotAvailableHandler();
+      assert.isFalse(element.updateProgress);
+    });
+  });
+
+  suite('_updateErrorHandler()', () => {
+    let element;
+    let err;
+    setup(() => {
+      element = fixture('Manual');
+      err = {
+        code: 'unknown-test-code',
+        message: 'test-message'
+      };
+    });
+
+    test('Sets updateStatePage', () => {
+      element._updateErrorHandler(null, err);
+      assert.equal(element.updateStatePage, 4);
+    });
+
+    test('Resets updateProgress', () => {
+      element._updateErrorHandler(null, err);
+      assert.isFalse(element.updateProgress);
+    });
+
+    test('Sets isError', () => {
+      element._updateErrorHandler(null, err);
+      assert.isTrue(element.isError);
+    });
+
+    test('Sets errorCode', () => {
+      element._updateErrorHandler(null, err);
+      assert.equal(element.errorCode, 'unknown-test-code');
+    });
+
+    test('errorCode is undefined when missing', () => {
+      delete err.code;
+      element._updateErrorHandler(null, err);
+      assert.isUndefined(element.errorCode);
+    });
+
+    test('Calls _createErrorMessage() with arguments', () => {
+      const spy = sinon.spy(element, '_createErrorMessage');
+      element._updateErrorHandler(null, err);
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'unknown-test-code');
+      assert.equal(spy.args[0][1], 'test-message');
+    });
+  });
+
+  suite('_downloadedHandler()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Sets updateStatePage', () => {
+      element.updateStatePage = 0;
+      element._downloadedHandler();
+      assert.equal(element.updateStatePage, 3);
+    });
+
+    test('Sets updateDownloaded', () => {
+      element.updateDownloaded = false;
+      element._downloadedHandler();
+      assert.isTrue(element.updateDownloaded);
+    });
+  });
+
+  suite('_createErrorMessage()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    [
+      ['ERR_UPDATER_INVALID_RELEASE_FEED', 'Unable to parse releases feed.'],
+      ['ERR_UPDATER_NO_PUBLISHED_VERSIONS', 'Unable to find published version.'],
+      ['ERR_UPDATER_CHANNEL_FILE_NOT_FOUND', 'Cannot find latest release information for this platform.'],
+      ['ERR_UPDATER_LATEST_VERSION_NOT_FOUND', 'Unable to find latest version on GitHub.'],
+      ['unknown-test-code', 'Unknown error ocurred.']
+    ].forEach((item) => {
+      test(`Returns message for ${item[0]}`, () => {
+        element._createErrorMessage(item[0]);
+        assert.equal(element.errorMessage, item[1]);
+      });
+    });
+
+    test('Returns passed message', () => {
+      element._createErrorMessage('unknown', 'my-message');
+      assert.equal(element.errorMessage, 'my-message');
+    });
+  });
+
+  suite('updateCheck()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Calls ipc.send with argument', () => {
+      const spy = sinon.spy(window.ipc, 'send');
+      element.updateCheck();
+      window.ipc.send.restore();
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'check-for-update');
+    });
+  });
+
+  suite('updateInstall()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Calls ipc.send with argument', () => {
+      const spy = sinon.spy(window.ipc, 'send');
+      element.updateInstall();
+      window.ipc.send.restore();
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'install-update');
+    });
+  });
+
+  suite('openNotes()', () => {
+    let element;
+    let ev;
+    setup(() => {
+      element = fixture('Manual');
+      ev = {
+        preventDefault: () => {},
+        stopPropagation: () => {},
+        target: {href: 'test-url'}
+      };
+    });
+
+    test('Cancels the event', () => {
+      const spy = sinon.spy(ev, 'preventDefault');
+      element.openNotes(ev);
+      assert.isTrue(spy.called);
+    });
+
+    test('Stopping the event', () => {
+      const spy = sinon.spy(ev, 'stopPropagation');
+      element.openNotes(ev);
+      assert.isTrue(spy.called);
+    });
+
+    test('Calls ipc.send with arguments', () => {
+      const spy = sinon.spy(window.ipc, 'send');
+      element.openNotes(ev);
+      window.ipc.send.restore();
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'open-external-url');
+      assert.equal(spy.args[0][1], 'test-url');
+    });
+  });
+
+  suite('_releaseChannelChanged()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Manual');
+    });
+
+    test('Does nothing when not __settingsRestored', () => {
+      element.__settingsRestored = false;
+      const spy = sinon.spy(element, 'updateSetting');
+      element._releaseChannelChanged({
         detail: {
-          name,
-          value
+          value: 'alpha'
         }
       });
-      document.body.dispatchEvent(ev);
-    }
-    [
-      ['autoUpdate', true],
-      ['releaseChannel', 'beta']
-    ].forEach((item) => {
-      test(`Updates value for ${item[0]}`, function() {
-        fire(item[0], item[1]);
-        assert.strictEqual(element[item[0]], item[1]);
+      assert.isFalse(spy.called);
+    });
+
+    test('Does nothing when cannel is invalid', () => {
+      element.__settingsRestored = true;
+      const spy = sinon.spy(element, 'updateSetting');
+      element._releaseChannelChanged({
+        detail: {
+          value: 'alpha-centauri'
+        }
       });
-    });
-  });
-
-  suite('isValidChannel()', () => {
-    let element;
-    setup(() => {
-      element = fixture('Manual');
+      assert.isFalse(spy.called);
     });
 
-    test('Returns true for "alpha"', () => {
-      const result = element.isValidChannel('alpha');
-      assert.isTrue(result);
-    });
-
-    test('Returns true for "beta"', () => {
-      const result = element.isValidChannel('beta');
-      assert.isTrue(result);
-    });
-
-    test('Returns true for "latest"', () => {
-      const result = element.isValidChannel('latest');
-      assert.isTrue(result);
-    });
-
-    test('Returns false for anything else', () => {
-      const result = element.isValidChannel('else');
-      assert.isFalse(result);
-    });
-  });
-
-  suite('_processValues()', () => {
-    let element;
-    setup(() => {
-      element = fixture('Manual');
-    });
-
-    [
-      ['autoUpdate', undefined, true],
-      ['autoUpdate', true, true],
-      ['autoUpdate', 'false', false],
-      ['releaseChannel', undefined, 'latest'],
-      ['releaseChannel', 'beta', 'beta'],
-      ['releaseChannel', 'other', 'latest']
-    ].forEach((item) => {
-      test(`Sets value of ${item[0]} when ${item[1]}`, () => {
-        const values = {};
-        values[item[0]] = item[1];
-        element._processValues(values);
-        assert.equal(values[item[0]], item[2]);
+    test('Calls updateSetting with arguments', () => {
+      element.__settingsRestored = true;
+      const spy = sinon.spy(element, 'updateSetting');
+      element._releaseChannelChanged({
+        detail: {
+          value: 'alpha'
+        }
       });
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'releaseChannel');
+      assert.equal(spy.args[0][1], 'alpha');
     });
   });
-
-  suite('_setSettings()', () => {
-    let element;
-    setup(() => {
-      element = fixture('Manual');
-    });
-    [
-      ['autoUpdate', true],
-      ['autoUpdate', false],
-      ['releaseChannel', 'latest']
-    ].forEach((item) => {
-      test(`Sets value of ${item[0]}`, () => {
-        const values = {};
-        values[item[0]] = item[1];
-        element._setSettings(values);
-        assert.equal(element[item[0]], item[1]);
-      });
-    });
-  });
-});
-
-suite('_checkingUpdateHandler()', () => {
-  let element;
-  setup(() => {
-    element = fixture('Manual');
-  });
-
-  test('Sets updateStatePage', () => {
-    element.updateStatePage = 0;
-    element.updateProgress = true;
-    element._checkingUpdateHandler();
-    assert.equal(element.updateStatePage, 1);
-  });
-
-  test('Sets updateProgress', () => {
-    element.updateProgress = false;
-    element._checkingUpdateHandler();
-    assert.isTrue(element.updateProgress);
-  });
-});
-
-suite('_updateAvailableHandler()', () => {
-  let element;
-  setup(() => {
-    element = fixture('Manual');
-  });
-
-  test('Sets updateStatePage', () => {
-    element.updateStatePage = 0;
-    element._updateAvailableHandler();
-    assert.equal(element.updateStatePage, 2);
-  });
-
-  test('Does nothing when updateStatePage is already set', () => {
-    element.updateStatePage = 2;
-    element._updateAvailableHandler();
-    assert.equal(element.updateStatePage, 2);
-    // coverge
-  });
-});
-
-suite('_downloadingHandler()', () => {
-  let element;
-  setup(() => {
-    element = fixture('Manual');
-  });
-
-  test('Sets updateProgress', () => {
-    element.updateProgress = false;
-    element._downloadingHandler();
-    assert.isTrue(element.updateProgress);
-  });
-
-  test('Does nothing when updateProgress is already set', () => {
-    element.updateProgress = true;
-    element._downloadingHandler();
-    assert.isTrue(element.updateProgress);
-    // Coverage
-  });
-});
-
-suite('_updateNotAvailableHandler()', () => {
-  let element;
-  setup(() => {
-    element = fixture('Manual');
-  });
-
-  test('Resets updateStatePage', () => {
-    element.updateStatePage = 1;
-    element._updateNotAvailableHandler();
-    assert.equal(element.updateStatePage, 0);
-  });
-
-  test('Resets updateProgress', () => {
-    element.updateProgress = true;
-    element._updateNotAvailableHandler();
-    assert.isFalse(element.updateProgress);
-  });
-});
-
-suite('_updateErrorHandler()', () => {
-  let element;
-  let err;
-  setup(() => {
-    element = fixture('Manual');
-    err = {
-      code: 'unknown-test-code',
-      message: 'test-message'
-    };
-  });
-
-  test('Sets updateStatePage', () => {
-    element._updateErrorHandler(null, err);
-    assert.equal(element.updateStatePage, 4);
-  });
-
-  test('Resets updateProgress', () => {
-    element._updateErrorHandler(null, err);
-    assert.isFalse(element.updateProgress);
-  });
-
-  test('Sets isError', () => {
-    element._updateErrorHandler(null, err);
-    assert.isTrue(element.isError);
-  });
-
-  test('Sets errorCode', () => {
-    element._updateErrorHandler(null, err);
-    assert.equal(element.errorCode, 'unknown-test-code');
-  });
-
-  test('errorCode is undefined when missing', () => {
-    delete err.code;
-    element._updateErrorHandler(null, err);
-    assert.isUndefined(element.errorCode);
-  });
-
-  test('Calls _createErrorMessage() with arguments', () => {
-    const spy = sinon.spy(element, '_createErrorMessage');
-    element._updateErrorHandler(null, err);
-    assert.isTrue(spy.called);
-    assert.equal(spy.args[0][0], 'unknown-test-code');
-    assert.equal(spy.args[0][1], 'test-message');
-  });
-});
-
-suite('_downloadedHandler()', () => {
-  let element;
-  setup(() => {
-    element = fixture('Manual');
-  });
-
-  test('Sets updateStatePage', () => {
-    element.updateStatePage = 0;
-    element._downloadedHandler();
-    assert.equal(element.updateStatePage, 3);
-  });
-
-  test('Sets updateDownloaded', () => {
-    element.updateDownloaded = false;
-    element._downloadedHandler();
-    assert.isTrue(element.updateDownloaded);
-  });
-});
-
-suite('_createErrorMessage()', () => {
-  let element;
-  setup(() => {
-    element = fixture('Manual');
-  });
-
-  [
-    ['ERR_UPDATER_INVALID_RELEASE_FEED', 'Unable to parse releases feed.'],
-    ['ERR_UPDATER_NO_PUBLISHED_VERSIONS', 'Unable to find published version.'],
-    ['ERR_UPDATER_CHANNEL_FILE_NOT_FOUND', 'Cannot find latest release information for this platform.'],
-    ['ERR_UPDATER_LATEST_VERSION_NOT_FOUND', 'Unable to find latest version on GitHub.'],
-    ['unknown-test-code', 'Unknown error ocurred.']
-  ].forEach((item) => {
-    test(`Returns message for ${item[0]}`, () => {
-      element._createErrorMessage(item[0]);
-      assert.equal(element.errorMessage, item[1]);
-    });
-  });
-
-  test('Returns passed message', () => {
-    element._createErrorMessage('unknown', 'my-message');
-    assert.equal(element.errorMessage, 'my-message');
-  });
-});
-
-suite('updateCheck()', () => {
-  let element;
-  setup(() => {
-    element = fixture('Manual');
-  });
-
-  test('Calls ipc.send with argument', () => {
-    const spy = sinon.spy(window.ipc, 'send');
-    element.updateCheck();
-    window.ipc.send.restore();
-    assert.isTrue(spy.called);
-    assert.equal(spy.args[0][0], 'check-for-update');
-  });
-});
-
-suite('updateInstall()', () => {
-  let element;
-  setup(() => {
-    element = fixture('Manual');
-  });
-
-  test('Calls ipc.send with argument', () => {
-    const spy = sinon.spy(window.ipc, 'send');
-    element.updateInstall();
-    window.ipc.send.restore();
-    assert.isTrue(spy.called);
-    assert.equal(spy.args[0][0], 'install-update');
-  });
-});
-
-suite('openNotes()', () => {
-  let element;
-  let ev;
-  setup(() => {
-    element = fixture('Manual');
-    ev = {
-      preventDefault: () => {},
-      stopPropagation: () => {},
-      target: {href: 'test-url'}
-    };
-  });
-
-  test('Cancels the event', () => {
-    const spy = sinon.spy(ev, 'preventDefault');
-    element.openNotes(ev);
-    assert.isTrue(spy.called);
-  });
-
-  test('Stopping the event', () => {
-    const spy = sinon.spy(ev, 'stopPropagation');
-    element.openNotes(ev);
-    assert.isTrue(spy.called);
-  });
-
-  test('Calls ipc.send with arguments', () => {
-    const spy = sinon.spy(window.ipc, 'send');
-    element.openNotes(ev);
-    window.ipc.send.restore();
-    assert.isTrue(spy.called);
-    assert.equal(spy.args[0][0], 'open-external-url');
-    assert.equal(spy.args[0][1], 'test-url');
-  });
-});
-
-suite('_releaseChannelChanged()', () => {
-  let element;
-  setup(() => {
-    element = fixture('Manual');
-  });
-
-  test('Does nothing when not __settingsRestored', () => {
-    element.__settingsRestored = false;
-    const spy = sinon.spy(element, 'updateSetting');
-    element._releaseChannelChanged({
-      detail: {
-        value: 'alpha'
-      }
-    });
-    assert.isFalse(spy.called);
-  });
-
-  test('Does nothing when cannel is invalid', () => {
-    element.__settingsRestored = true;
-    const spy = sinon.spy(element, 'updateSetting');
-    element._releaseChannelChanged({
-      detail: {
-        value: 'alpha-centauri'
-      }
-    });
-    assert.isFalse(spy.called);
-  });
-
-  test('Calls updateSetting with arguments', () => {
-    element.__settingsRestored = true;
-    const spy = sinon.spy(element, 'updateSetting');
-    element._releaseChannelChanged({
-      detail: {
-        value: 'alpha'
-      }
-    });
-    assert.isTrue(spy.called);
-    assert.equal(spy.args[0][0], 'releaseChannel');
-    assert.equal(spy.args[0][1], 'alpha');
-  });
-});
-</script>
+  </script>
 </body>
 </html>
