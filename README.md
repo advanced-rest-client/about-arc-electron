@@ -1,26 +1,30 @@
-[![Build Status](https://travis-ci.org/advanced-rest-client/api-url-data-model.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/about-arc-electron)
+[![Published on NPM](https://img.shields.io/npm/v/@advanced-rest-client/about-arc-electron.svg)](https://www.npmjs.com/package/@advanced-rest-client/about-arc-electron)
+[![Build Status](https://travis-ci.org/advanced-rest-client/about-arc-electron.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/about-arc-electron)
 
-[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/advanced-rest-client/about-arc-electron)
+## &lt;about-arc-electron&gt;
 
-# about-arc-electron
+About screen for Advanced REST Client - Electron release.
 
-Abour screen for ARC electron
+## Development
 
-<!---
-```
-<custom-element-demo>
-  <template>
-    <link rel="import" href="about-arc-electron.html">
-    <next-code-block></next-code-block>
-  </template>
-</custom-element-demo>
-```
--->
-
-```html
-<about-arc-electron></about-arc-electron>
+```sh
+git clone https://github.com/advanced-rest-client/about-arc-electron
+cd about-arc-electron
+npm install
 ```
 
-### API components
+### Running the demo locally
 
-This components is a part of API components ecosystem: https://elements.advancedrestclient.com/
+```sh
+npm start
+```
+
+### Running the tests
+
+```sh
+npm test
+```
+
+## API components
+
+This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)

@@ -1,82 +1,52 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-  <title>about-arc-electron test</title>
+import { fixture, assert } from '@open-wc/testing';
+import * as sinon from 'sinon/pkg/sinon-esm.js';
+// import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions.js';
+import '@advanced-rest-client/arc-local-store-preferences/arc-local-store-preferences.js';
+import '../about-arc-electron.js';
+window.ipc = {
+  on: function() {},
+  send: function() {},
+  removeListener: function() {}
+};
 
-  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-  <script src="../../../@polymer/test-fixture/test-fixture.js"></script>
-  <script src="../../../mocha/mocha.js"></script>
-  <script src="../../../chai/chai.js"></script>
-  <script src="../../../wct-mocha/wct-mocha.js"></script>
-  <script src="../../../sinon/pkg/sinon.js"></script>
+describe('<about-arc-electron>', function() {
+  async function basicFixture() {
+    const region = await fixture(`
+      <div>
+        <arc-local-store-preferences></arc-local-store-preferences>
+        <about-arc-electron manual></about-arc-electron>
+      </div>
+    `);
+    return region.querySelector('about-arc-electron');
+  }
 
-  <script type="module" src="../../../@advanced-rest-client/arc-local-store-preferences/arc-local-store-preferences.js"></script>
-  <script type="module" src="../about-arc-electron.js"></script>
-</head>
-<body>
-  <arc-local-store-preferences></arc-local-store-preferences>
+  async function autoFixture() {
+    const region = await fixture(`
+      <div>
+        <arc-local-store-preferences></arc-local-store-preferences>
+        <about-arc-electron></about-arc-electron>
+      </div>
+    `);
+    const node = region.querySelector('arc-local-store-preferences');
+    node.clear();
+    return region.querySelector('about-arc-electron');
+  }
 
-  <test-fixture id="Manual">
-    <template>
-      <about-arc-electron manual></about-arc-electron>
-    </template>
-  </test-fixture>
-
-  <test-fixture id="Auto">
-    <template>
-      <about-arc-electron></about-arc-electron>
-    </template>
-  </test-fixture>
-
-  <script type="module">
-  window.ipc = {
-    on: function() {},
-    send: function() {},
-    removeListener: function() {}
-  };
-  suite('about-arc-electron', () => {
-    suite('Auto reading settings', () => {
-      let element;
-      setup(() => {
-        const node = document.querySelector('arc-local-store-preferences');
-        node.clear();
-      });
-
-      teardown(() => {
-        const node = document.querySelector('arc-local-store-preferences');
-        node.clear();
-      });
-
-      test('Dispatches settings-read', (done) => {
+  describe('about-arc-electron', () => {
+    describe('Auto reading settings', () => {
+      it('Dispatches settings-read', (done) => {
         window.addEventListener('settings-read', function f() {
           window.removeEventListener('settings-read', f);
           done();
         });
-        element = fixture('Auto');
-      });
-
-      test('Do not dispatches settings-changed when restoring data', (done) => {
-        let called = false;
-        const f = function() {
-          called = true;
-        };
-        element = fixture('Auto');
-        element.addEventListener('settings-changed', f);
-        setTimeout(() => {
-          element.removeEventListener('settings-changed', f);
-          assert.isFalse(called);
-          done();
-        }, 500);
+        autoFixture();
       });
     });
 
-    suite('_settingsChanged()', () => {
+    describe('_settingsChanged()', () => {
       let element;
-      setup((done) => {
-        element = fixture('Manual');
-        flush(() => done());
+      beforeEach(async () => {
+        element = await basicFixture();
       });
       function fire(name, value) {
         const ev = new CustomEvent('settings-changed', {
@@ -94,44 +64,44 @@
         ['autoUpdate', true],
         ['releaseChannel', 'beta']
       ].forEach((item) => {
-        test(`Updates value for ${item[0]}`, function() {
+        it(`Updates value for ${item[0]}`, function() {
           fire(item[0], item[1]);
           assert.strictEqual(element[item[0]], item[1]);
         });
       });
     });
 
-    suite('isValidChannel()', () => {
+    describe('isValidChannel()', () => {
       let element;
-      setup(() => {
-        element = fixture('Manual');
+      beforeEach(async () => {
+        element = await basicFixture();
       });
 
-      test('Returns true for "alpha"', () => {
+      it('Returns true for "alpha"', () => {
         const result = element.isValidChannel('alpha');
         assert.isTrue(result);
       });
 
-      test('Returns true for "beta"', () => {
+      it('Returns true for "beta"', () => {
         const result = element.isValidChannel('beta');
         assert.isTrue(result);
       });
 
-      test('Returns true for "latest"', () => {
+      it('Returns true for "latest"', () => {
         const result = element.isValidChannel('latest');
         assert.isTrue(result);
       });
 
-      test('Returns false for anything else', () => {
+      it('Returns false for anything else', () => {
         const result = element.isValidChannel('else');
         assert.isFalse(result);
       });
     });
 
-    suite('_processValues()', () => {
+    describe('_processValues()', () => {
       let element;
-      setup(() => {
-        element = fixture('Manual');
+      beforeEach(async () => {
+        element = await basicFixture();
       });
 
       [
@@ -142,7 +112,7 @@
         ['releaseChannel', 'beta', 'beta'],
         ['releaseChannel', 'other', 'latest']
       ].forEach((item) => {
-        test(`Sets value of ${item[0]} when ${item[1]}`, () => {
+        it(`Sets value of ${item[0]} when ${item[1]}`, () => {
           const values = {};
           values[item[0]] = item[1];
           element._processValues(values);
@@ -151,17 +121,17 @@
       });
     });
 
-    suite('_setSettings()', () => {
+    describe('_setSettings()', () => {
       let element;
-      setup(() => {
-        element = fixture('Manual');
+      beforeEach(async () => {
+        element = await basicFixture();
       });
       [
         ['autoUpdate', true],
         ['autoUpdate', false],
         ['releaseChannel', 'latest']
       ].forEach((item) => {
-        test(`Sets value of ${item[0]}`, () => {
+        it(`Sets value of ${item[0]}`, () => {
           const values = {};
           values[item[0]] = item[1];
           element._setSettings(values);
@@ -171,39 +141,37 @@
     });
   });
 
-  suite('_checkingUpdateHandler()', () => {
+  describe('_checkingUpdateHandler()', () => {
     let element;
-    setup(() => {
-      element = fixture('Manual');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Sets updateStatePage', () => {
+    it('Sets updateStatePage', () => {
       element.updateStatePage = 0;
-      element.updateProgress = true;
       element._checkingUpdateHandler();
       assert.equal(element.updateStatePage, 1);
     });
 
-    test('Sets updateProgress', () => {
-      element.updateProgress = false;
+    it('Sets updateProgress', () => {
       element._checkingUpdateHandler();
       assert.isTrue(element.updateProgress);
     });
   });
 
-  suite('_updateAvailableHandler()', () => {
+  describe('_updateAvailableHandler()', () => {
     let element;
-    setup(() => {
-      element = fixture('Manual');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Sets updateStatePage', () => {
+    it('Sets updateStatePage', () => {
       element.updateStatePage = 0;
       element._updateAvailableHandler();
       assert.equal(element.updateStatePage, 2);
     });
 
-    test('Does nothing when updateStatePage is already set', () => {
+    it('Does nothing when updateStatePage is already set', () => {
       element.updateStatePage = 2;
       element._updateAvailableHandler();
       assert.equal(element.updateStatePage, 2);
@@ -211,83 +179,82 @@
     });
   });
 
-  suite('_downloadingHandler()', () => {
+  describe('_downloadingHandler()', () => {
     let element;
-    setup(() => {
-      element = fixture('Manual');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Sets updateProgress', () => {
-      element.updateProgress = false;
+    it('Sets updateStatePage', () => {
+      element.updateStatePage = 0;
       element._downloadingHandler();
-      assert.isTrue(element.updateProgress);
+      assert.equal(element.updateStatePage, 2);
     });
 
-    test('Does nothing when updateProgress is already set', () => {
-      element.updateProgress = true;
+    it('Does nothing when updateStatePage is already set', () => {
+      element.updateStatePage = 2;
       element._downloadingHandler();
-      assert.isTrue(element.updateProgress);
-      // Coverage
+      assert.equal(element.updateStatePage, 2);
+      // coverge
     });
   });
 
-  suite('_updateNotAvailableHandler()', () => {
+  describe('_updateNotAvailableHandler()', () => {
     let element;
-    setup(() => {
-      element = fixture('Manual');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Resets updateStatePage', () => {
+    it('Resets updateStatePage', () => {
       element.updateStatePage = 1;
       element._updateNotAvailableHandler();
       assert.equal(element.updateStatePage, 0);
     });
 
-    test('Resets updateProgress', () => {
-      element.updateProgress = true;
+    it('Resets updateProgress', () => {
       element._updateNotAvailableHandler();
       assert.isFalse(element.updateProgress);
     });
   });
 
-  suite('_updateErrorHandler()', () => {
+  describe('_updateErrorHandler()', () => {
     let element;
     let err;
-    setup(() => {
-      element = fixture('Manual');
+    beforeEach(async () => {
+      element = await basicFixture();
       err = {
         code: 'unknown-test-code',
         message: 'test-message'
       };
     });
 
-    test('Sets updateStatePage', () => {
+    it('Sets updateStatePage', () => {
       element._updateErrorHandler(null, err);
       assert.equal(element.updateStatePage, 4);
     });
 
-    test('Resets updateProgress', () => {
+    it('Resets updateProgress', () => {
       element._updateErrorHandler(null, err);
       assert.isFalse(element.updateProgress);
     });
 
-    test('Sets isError', () => {
+    it('Sets isError', () => {
       element._updateErrorHandler(null, err);
       assert.isTrue(element.isError);
     });
 
-    test('Sets errorCode', () => {
+    it('Sets errorCode', () => {
       element._updateErrorHandler(null, err);
       assert.equal(element.errorCode, 'unknown-test-code');
     });
 
-    test('errorCode is undefined when missing', () => {
+    it('errorCode is undefined when missing', () => {
       delete err.code;
       element._updateErrorHandler(null, err);
       assert.isUndefined(element.errorCode);
     });
 
-    test('Calls _createErrorMessage() with arguments', () => {
+    it('Calls _createErrorMessage() with arguments', () => {
       const spy = sinon.spy(element, '_createErrorMessage');
       element._updateErrorHandler(null, err);
       assert.isTrue(spy.called);
@@ -296,29 +263,28 @@
     });
   });
 
-  suite('_downloadedHandler()', () => {
+  describe('_downloadedHandler()', () => {
     let element;
-    setup(() => {
-      element = fixture('Manual');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Sets updateStatePage', () => {
+    it('Sets updateStatePage', () => {
       element.updateStatePage = 0;
       element._downloadedHandler();
       assert.equal(element.updateStatePage, 3);
     });
 
-    test('Sets updateDownloaded', () => {
-      element.updateDownloaded = false;
+    it('Sets updateDownloaded', () => {
       element._downloadedHandler();
       assert.isTrue(element.updateDownloaded);
     });
   });
 
-  suite('_createErrorMessage()', () => {
+  describe('_createErrorMessage()', () => {
     let element;
-    setup(() => {
-      element = fixture('Manual');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
     [
@@ -328,25 +294,25 @@
       ['ERR_UPDATER_LATEST_VERSION_NOT_FOUND', 'Unable to find latest version on GitHub.'],
       ['unknown-test-code', 'Unknown error ocurred.']
     ].forEach((item) => {
-      test(`Returns message for ${item[0]}`, () => {
+      it(`Returns message for ${item[0]}`, () => {
         element._createErrorMessage(item[0]);
         assert.equal(element.errorMessage, item[1]);
       });
     });
 
-    test('Returns passed message', () => {
+    it('Returns passed message', () => {
       element._createErrorMessage('unknown', 'my-message');
       assert.equal(element.errorMessage, 'my-message');
     });
   });
 
-  suite('updateCheck()', () => {
+  describe('updateCheck()', () => {
     let element;
-    setup(() => {
-      element = fixture('Manual');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Calls ipc.send with argument', () => {
+    it('Calls ipc.send with argument', () => {
       const spy = sinon.spy(window.ipc, 'send');
       element.updateCheck();
       window.ipc.send.restore();
@@ -355,13 +321,13 @@
     });
   });
 
-  suite('updateInstall()', () => {
+  describe('updateInstall()', () => {
     let element;
-    setup(() => {
-      element = fixture('Manual');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Calls ipc.send with argument', () => {
+    it('Calls ipc.send with argument', () => {
       const spy = sinon.spy(window.ipc, 'send');
       element.updateInstall();
       window.ipc.send.restore();
@@ -370,31 +336,31 @@
     });
   });
 
-  suite('openNotes()', () => {
+  describe('openNotes()', () => {
     let element;
     let ev;
-    setup(() => {
-      element = fixture('Manual');
+    beforeEach(async () => {
+      element = await basicFixture();
       ev = {
         preventDefault: () => {},
         stopPropagation: () => {},
-        target: {href: 'test-url'}
+        target: { href: 'test-url' }
       };
     });
 
-    test('Cancels the event', () => {
+    it('Cancels the event', () => {
       const spy = sinon.spy(ev, 'preventDefault');
       element.openNotes(ev);
       assert.isTrue(spy.called);
     });
 
-    test('Stopping the event', () => {
+    it('Stopping the event', () => {
       const spy = sinon.spy(ev, 'stopPropagation');
       element.openNotes(ev);
       assert.isTrue(spy.called);
     });
 
-    test('Calls ipc.send with arguments', () => {
+    it('Calls ipc.send with arguments', () => {
       const spy = sinon.spy(window.ipc, 'send');
       element.openNotes(ev);
       window.ipc.send.restore();
@@ -404,13 +370,13 @@
     });
   });
 
-  suite('_releaseChannelChanged()', () => {
+  describe('_releaseChannelChanged()', () => {
     let element;
-    setup(() => {
-      element = fixture('Manual');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Does nothing when not __settingsRestored', () => {
+    it('Does nothing when not __settingsRestored', () => {
       element.__settingsRestored = false;
       const spy = sinon.spy(element, 'updateSetting');
       element._releaseChannelChanged({
@@ -421,7 +387,7 @@
       assert.isFalse(spy.called);
     });
 
-    test('Does nothing when cannel is invalid', () => {
+    it('Does nothing when cannel is invalid', () => {
       element.__settingsRestored = true;
       const spy = sinon.spy(element, 'updateSetting');
       element._releaseChannelChanged({
@@ -432,7 +398,7 @@
       assert.isFalse(spy.called);
     });
 
-    test('Calls updateSetting with arguments', () => {
+    it('Calls updateSetting with arguments', () => {
       element.__settingsRestored = true;
       const spy = sinon.spy(element, 'updateSetting');
       element._releaseChannelChanged({
@@ -445,6 +411,4 @@
       assert.equal(spy.args[0][1], 'alpha');
     });
   });
-  </script>
-</body>
-</html>
+});
