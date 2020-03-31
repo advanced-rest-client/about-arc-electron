@@ -38,7 +38,6 @@
     "@advanced-rest-client/arc-models": "^3.1.1",
     "@advanced-rest-client/eslint-config": "^1.1.5",
     "@advanced-rest-client/prettier-config": "^0.1.0",
-    "@advanced-rest-client/testing-karma-sl": "^1.2.0",
     "@anypoint-web-components/anypoint-radio-button": "^0.1.4",
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
