@@ -1,19 +1,18 @@
 
 import { html } from 'lit-html';
-import { ArcDemoPage } from '@advanced-rest-client/arc-demo-helper/ArcDemoPage.js';
+import { DemoPage } from '@advanced-rest-client/arc-demo-helper';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@advanced-rest-client/arc-local-store-preferences/arc-local-store-preferences.js';
 import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
 import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
 import '../about-arc-electron.js';
 
-class DemoPage extends ArcDemoPage {
+class ComponentDemo extends DemoPage {
   constructor() {
     super();
     this.initObservableProperties([
-      'compatibility',
       'outlined',
-      'updateState'
+      'updateState',
     ]);
     this._componentName = 'about-arc-electron';
     this.demoStates = ['Filled', 'Outlined', 'Anypoint'];
@@ -22,13 +21,7 @@ class DemoPage extends ArcDemoPage {
     this.errorCode = 'ERR_UPDATER_CHANNEL_FILE_NOT_FOUND';
 
     this._demoStateHandler = this._demoStateHandler.bind(this);
-    this._toggleMainOption = this._toggleMainOption.bind(this);
     this._updateStateHandler = this._updateStateHandler.bind(this);
-  }
-
-  _toggleMainOption(e) {
-    const { name, checked } = e.target;
-    this[name] = checked;
   }
 
   _demoStateHandler(e) {
@@ -135,6 +128,6 @@ window.ipc = {
   removeListener: function() {}
 };
 
-const instance = new DemoPage();
+const instance = new ComponentDemo();
 instance.render();
 window._demo = instance;
